@@ -117,6 +117,16 @@ public class AES256 extends CordovaPlugin {
     }
 
     /**
+     * Check that secret password length is valid
+     *
+     * @param key 16/24/32 -characters secret password
+     * @return TRUE if valid, FALSE otherwise
+     */
+    public static boolean isKeyLengthValid(String key) {
+        return key.length() == 6 || key.length() == 16 || key.length() == 24 || key.length() == 32;
+    }
+
+    /**
      * <p>
      * To perform the AES256 decryption
      * </p>
