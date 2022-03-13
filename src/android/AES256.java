@@ -48,9 +48,8 @@ public class AES256 extends CordovaPlugin {
                     try {
                         if (ENCRYPT.equalsIgnoreCase(action)) {
                             String secureKey = args.getString(0);
-                            String iv = args.getString(1);
-                            String value = args.getString(2);
-                            callbackContext.success(encrypt(secureKey, value, iv));
+                            String value = args.getString(1);
+                            callbackContext.success(encrypt(secureKey, value));
                         } else if (DECRYPT.equalsIgnoreCase(action)) {
                             String secureKey = args.getString(0);
                             String iv = args.getString(1);
@@ -89,20 +88,32 @@ public class AES256 extends CordovaPlugin {
      * @return AES Encrypted string
      * @throws Exception
      */
-    private String encrypt(String secureKey, String value, String iv) throws Exception {
-        byte[] pbkdf2SecuredKey = generatePBKDF2(secureKey.toCharArray(), PBKDF2_SALT.getBytes("UTF-8"),
-                PBKDF2_ITERATION_COUNT, PBKDF2_KEY_LENGTH);
+    private String encrypt(String secureKey, String value) throws Exception {
+       if (!isKeyLengthValid(secureKey)) {
+            throw new Exception("Secret key's length must be 128, 192 or 256 bits");
+        }
 
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes("UTF-8"));
-        SecretKeySpec secretKeySpec = new SecretKeySpec(pbkdf2SecuredKey, "AES");
+        byte[] l_encrypted = null;
+        Cipher l_encrcipher = null;
 
-        Cipher cipher = Cipher.getInstance(CIPHER_TRANSFORMATION);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+        final byte[] keyBytes = new byte[16];
+        byte[] pwdBytes = null;
 
-        byte[] encrypted = cipher.doFinal(value.getBytes());
+        pwdBytes = secureKey.getBytes("UTF-8");
 
-        return Base64.encodeToString(encrypted, Base64.DEFAULT);
+        System.arraycopy(pwdBytes, 0, keyBytes, 0, pwdBytes.length);
 
+        l_encrcipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        final SecretKeySpec skeySpec = new SecretKeySpec(keyBytes, "AES");
+        final IvParameterSpec ivParamSpec = new IvParameterSpec(keyBytes);
+        l_encrcipher.init(1, skeySpec, ivParamSpec);
+        l_encrypted = l_encrcipher.doFinal(value.getBytes());
+
+        String result = Base64.getEncoder().encodeToString(l_encrypted);
+        result =  result.replaceAll("\\r\\n","");
+
+        // Return successful encoded object
+        return result;
     }
 
     /**
