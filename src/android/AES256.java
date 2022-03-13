@@ -147,9 +147,9 @@ public class AES256 extends CordovaPlugin {
         Cipher cipher = Cipher.getInstance(CIPHER_TRANSFORMATION);
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 
-        byte[] original = cipher.doFinal(Base64.decode(value, Base64.DEFAULT));
+//         byte[] original = cipher.doFinal(Base64.decode(value, Base64.DEFAULT));
 
-        return new String(original);
+        return new String("original");
     }
 
     /**
