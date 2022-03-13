@@ -1,6 +1,7 @@
 package com.ideas2it.aes256;
 
 import android.util.Base64;
+import java.util.Base64;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
